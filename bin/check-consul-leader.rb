@@ -47,6 +47,12 @@ class ConsulStatus < Sensu::Plugin::Check::CLI
          long: '--port PORT',
          default: '8500'
 
+  option :timeout,
+         description: 'Rest client timeout',
+         short: '-t TIMEOUT',
+         long: '--timeout TIMEOUT',
+         default: 5
+
   def valid_ip(ip)
     case ip.to_s
     when Resolv::IPv4::Regex
@@ -71,7 +77,7 @@ class ConsulStatus < Sensu::Plugin::Check::CLI
   end
 
   def run
-    r = RestClient::Resource.new("http://#{config[:server]}:#{config[:port]}/v1/status/leader", timeout: 5).get
+    r = RestClient::Resource.new("http://#{config[:server]}:#{config[:port]}/v1/status/leader", timeout: config[:timeout]).get
     if r.code == 200
       if valid_ip(strip_ip(r.body))
         ok 'Consul is UP and has a leader'
