@@ -37,8 +37,14 @@ class ConsulStatus < Sensu::Plugin::Check::CLI
          long: '--port PORT',
          default: '8500'
 
+  option :timeout,
+         description: 'Rest client timeout',
+         short: '-t TIMEOUT',
+         long: '--timeout TIMEOUT',
+         default: 5
+
   def run
-    r = RestClient::Resource.new("http://#{config[:server]}:#{config[:port]}/v1/agent/members", timeout: 5).get
+    r = RestClient::Resource.new("http://#{config[:server]}:#{config[:port]}/v1/agent/members", timeout: config[:timeout]).get
     if r.code == 200
       failing_nodes = JSON.parse(r).find_all { |node| node['Status'] == 4 }
       if !failing_nodes.nil? && !failing_nodes.empty?

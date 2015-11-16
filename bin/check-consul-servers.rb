@@ -59,8 +59,14 @@ class ConsulStatus < Sensu::Plugin::Check::CLI
          long: '--expect EXPECT',
          default: 5
 
+  option :timeout,
+         description: 'Rest client timeout',
+         short: '-t TIMEOUT',
+         long: '--timeout TIMEOUT',
+         default: 5
+
   def run
-    json = RestClient::Resource.new("http://#{config[:server]}:#{config[:port]}/v1/status/peers", timeout: 5).get
+    json = RestClient::Resource.new("http://#{config[:server]}:#{config[:port]}/v1/status/peers", timeout: config[:timeout]).get
     peers = JSON.parse(json).length.to_i
     if peers < config[:min].to_i
       critical "[#{peers}] peers is below critical threshold of [#{config[:min]}]"
